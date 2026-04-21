@@ -1,4 +1,4 @@
-# Sistem Absensi Sekolah
+# Sistem Absensi Digital 
 
 ## Local Deployment
 
