@@ -15,9 +15,9 @@
     "prisma:generate": "pnpm --filter api prisma:generate",
     "prisma:seed": "pnpm --filter api prisma:seed",
     "postman:export": "node ./scripts/postman-export.mjs",
-    "docker:dev": "docker compose up",
-    "docker:down": "docker compose down",
-    "docker:logs": "docker compose logs -f api web",
-    "docker:reset": "docker compose down -v"
+    "docker:dev": "bash ./scripts/docker-run-dev.sh",
+    "docker:down": "bash ./scripts/docker-run-down.sh",
+    "docker:logs": "bash ./scripts/docker-run-logs.sh",
+    "docker:reset": "bash ./scripts/docker-run-reset.sh"
   }
 }

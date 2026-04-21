@@ -26,7 +26,7 @@ gcloud compute ssh NAMA_VM --zone=asia-southeast2-a
 
 Jika belum pakai `gcloud`, Anda juga bisa masuk lewat tombol SSH di Google Cloud Console.
 
-## 3. Install Docker, Compose, Git, Dan Git LFS
+## 3. Install Docker, Git, Dan Git LFS
 
 Jalankan ini di terminal SSH VM:
 
@@ -44,7 +44,7 @@ echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.
   | sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
 
 sudo apt-get update
-sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin
 
 sudo systemctl enable --now docker
 sudo usermod -aG docker "$USER"
@@ -61,7 +61,6 @@ Verifikasi:
 
 ```bash
 docker --version
-docker compose version
 git lfs version
 ```
 
@@ -141,22 +140,22 @@ NEXT_PUBLIC_API_BASE_URL=http://YOUR_VM_EXTERNAL_IP:3000/api/v1
 ## 7. Jalankan Stack
 
 ```bash
-docker compose up -d
+bash scripts/docker-run-dev.sh
 ```
 
 Lihat status container:
 
 ```bash
-docker compose ps
+docker ps --filter name=attendance
 ```
 
 Lihat log:
 
 ```bash
-docker compose logs -f api web
+bash scripts/docker-run-logs.sh
 ```
 
-Pada start pertama, Compose akan menjalankan:
+Pada start pertama, Skrip docker-run akan menjalankan:
 - dependency install
 - Prisma generate
 - Prisma migrate
@@ -201,14 +200,13 @@ Di terminal SSH VM:
 ```bash
 cd ~/apps/SIABDI
 git pull
-docker compose up -d --build
+bash scripts/docker-run-dev.sh
 ```
 
-Jika migration/seed perlu dijalankan ulang:
+Jika hanya ingin restart container tanpa menjalankan Prisma migrate/seed:
 
 ```bash
-docker compose up db-init
-docker compose up -d api web
+SKIP_DB_INIT=1 bash scripts/docker-run-dev.sh
 ```
 
 ## 11. Reset Total Data Development
@@ -216,8 +214,8 @@ docker compose up -d api web
 Ini menghapus database dan dependency volume container:
 
 ```bash
-docker compose down -v
-docker compose up -d
+bash scripts/docker-run-reset.sh
+bash scripts/docker-run-dev.sh
 ```
 
 ## 12. Troubleshooting
@@ -234,15 +232,14 @@ Jika frontend tidak bisa memanggil API:
 - Restart web setelah mengubah `.env`:
 
 ```bash
-docker compose restart web
+docker restart attendance-web
 ```
 
 Jika API gagal konek database:
 
 ```bash
-docker compose logs postgres
-docker compose logs db-init
-docker compose logs api
+docker logs attendance-postgres
+docker logs attendance-api
 ```
 
 Jika port dipakai service lain:
@@ -254,4 +251,4 @@ sudo lsof -i :3001
 
 ## Catatan Tentang "venv"
 
-Project ini tidak membutuhkan Python virtual environment. Development environment-nya adalah VM + Docker Compose. Dependency Node, API, web, Postgres, dan Redis dijalankan di container.
+Project ini tidak membutuhkan Python virtual environment. Development environment-nya adalah VM + Docker. Dependency Node, API, web, Postgres, dan Redis dijalankan di container.

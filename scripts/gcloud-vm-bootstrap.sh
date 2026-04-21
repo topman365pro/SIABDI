@@ -17,7 +17,7 @@ sudo apt-get update
 echo "Installing base packages..."
 sudo apt-get install -y ca-certificates curl git git-lfs gnupg lsb-release openssl
 
-echo "Installing Docker Engine and Compose plugin..."
+echo "Installing Docker Engine..."
 sudo install -m 0755 -d /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 sudo chmod a+r /etc/apt/keyrings/docker.gpg
@@ -28,7 +28,7 @@ echo \
   | sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
 
 sudo apt-get update
-sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin
 
 echo "Enabling Docker service..."
 sudo systemctl enable --now docker
@@ -43,4 +43,4 @@ git lfs install
 
 echo "Bootstrap completed."
 echo "Important: log out and SSH back in, or run: newgrp docker"
-echo "Then verify with: docker --version && docker compose version"
+echo "Then verify with: docker --version && docker run hello-world"

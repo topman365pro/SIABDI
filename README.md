@@ -18,7 +18,7 @@ cp .env.example .env
 pnpm docker:dev
 ```
 
-Compose akan menjalankan `postgres`, `redis`, dependency install, Prisma generate/migrate/seed, `api`, dan `web`.
+Skrip ini memakai `docker run`, bukan `docker compose`. Ia akan menjalankan `postgres`, `redis`, dependency install, Prisma generate/migrate/seed, `api`, dan `web`.
 
 Frontend tersedia di `http://localhost:3001`, API di `http://localhost:3000/api/v1`, dan Swagger di `http://localhost:3000/api/docs`.
 
@@ -47,7 +47,8 @@ Jika ingin menjalankan app dari host dan hanya memakai Docker untuk database:
 ```bash
 cp .env.example .env
 pnpm install
-docker compose up -d postgres redis
+docker run -d --name attendance-postgres -e POSTGRES_DB=attendance_db -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -p 5432:5432 postgres:16-alpine
+docker run -d --name attendance-redis -p 6379:6379 redis:7-alpine
 pnpm prisma:generate
 pnpm prisma:migrate
 pnpm prisma:seed
