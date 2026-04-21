@@ -1,0 +1,381 @@
+{
+  "info": {
+    "name": "Attendance School API",
+    "_postman_id": "f2cd72bd-5a8b-49de-939c-f64a3e43a4d3",
+    "description": "Collection untuk Backend MVP Sistem Absensi Sekolah.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api/v1"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "refreshToken",
+      "value": ""
+    },
+    {
+      "key": "classId",
+      "value": ""
+    },
+    {
+      "key": "studentId",
+      "value": ""
+    },
+    {
+      "key": "scheduleId",
+      "value": ""
+    },
+    {
+      "key": "bkPermissionId",
+      "value": ""
+    },
+    {
+      "key": "dispensationId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"guru.mapel\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/login"
+          }
+        },
+        {
+          "name": "Refresh",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{refreshToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/refresh"
+          }
+        },
+        {
+          "name": "Me",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/me"
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/logout"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Access",
+      "item": [
+        {
+          "name": "Get Roles",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/roles"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Attendance",
+      "item": [
+        {
+          "name": "Base Check",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"classId\": \"{{classId}}\",\n  \"scheduleId\": \"{{scheduleId}}\",\n  \"attendanceDate\": \"2026-04-20\",\n  \"lessonPeriodNo\": 1,\n  \"records\": [\n    {\n      \"studentId\": \"{{studentId}}\",\n      \"status\": \"HADIR\",\n      \"note\": \"Base check manual\"\n    }\n  ]\n}"
+            },
+            "url": "{{baseUrl}}/attendance/base-check"
+          }
+        },
+        {
+          "name": "Cross Check",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"studentId\": \"{{studentId}}\",\n  \"classId\": \"{{classId}}\",\n  \"scheduleId\": \"{{scheduleId}}\",\n  \"attendanceDate\": \"2026-04-20\",\n  \"lessonPeriodNo\": 2,\n  \"teacherObservation\": \"ABSENT\",\n  \"note\": \"Cross-check mapel\"\n}"
+            },
+            "url": "{{baseUrl}}/attendance/cross-check"
+          }
+        },
+        {
+          "name": "Class Current",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/attendance/classes/{{classId}}/current?date=2026-04-20&periodNo=1"
+          }
+        },
+        {
+          "name": "Student History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/attendance/students/{{studentId}}/history?startDate=2026-04-01&endDate=2026-04-30"
+          }
+        }
+      ]
+    },
+    {
+      "name": "BK",
+      "item": [
+        {
+          "name": "Create BK Override",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"studentId\": \"{{studentId}}\",\n  \"classId\": \"{{classId}}\",\n  \"attendanceDate\": \"2026-04-20\",\n  \"permissionKind\": \"SAKIT\",\n  \"startPeriodNo\": 5,\n  \"endPeriodNo\": 10,\n  \"returnRequired\": false,\n  \"reason\": \"Sakit dari orang tua\"\n}"
+            },
+            "url": "{{baseUrl}}/bk-dashboard/status-overrides"
+          }
+        },
+        {
+          "name": "List BK Permissions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/bk-permissions"
+          }
+        },
+        {
+          "name": "Cancel BK Permission",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/bk-dashboard/status-overrides/{{bkPermissionId}}/cancel"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dispensations",
+      "item": [
+        {
+          "name": "Create Dispensation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Kegiatan OSIS\",\n  \"description\": \"Briefing acara sekolah\",\n  \"attendanceDate\": \"2026-04-20\",\n  \"startPeriodNo\": 3,\n  \"endPeriodNo\": 4,\n  \"returnRequired\": false\n}"
+            },
+            "url": "{{baseUrl}}/dispensations"
+          }
+        },
+        {
+          "name": "Add Dispensation Students",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"classId\": \"{{classId}}\",\n  \"studentIds\": [\"{{studentId}}\"]\n}"
+            },
+            "url": "{{baseUrl}}/dispensations/{{dispensationId}}/students"
+          }
+        },
+        {
+          "name": "Publish Dispensation",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/dispensations/{{dispensationId}}/publish"
+          }
+        },
+        {
+          "name": "List Dispensations",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/dispensations"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tap Events",
+      "item": [
+        {
+          "name": "Tap In",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nisInput\": \"2024001\",\n  \"tapType\": \"IN\",\n  \"tappedAt\": \"2026-04-20T06:45:00.000Z\",\n  \"externalEventId\": \"tap-demo-003\"\n}"
+            },
+            "url": "{{baseUrl}}/tap-events/tap-in"
+          }
+        },
+        {
+          "name": "Tap Out",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nisInput\": \"2024001\",\n  \"tapType\": \"OUT\",\n  \"tappedAt\": \"2026-04-20T16:05:00.000Z\",\n  \"externalEventId\": \"tap-demo-004\"\n}"
+            },
+            "url": "{{baseUrl}}/tap-events/tap-out"
+          }
+        },
+        {
+          "name": "List Tap Events",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/tap-events"
+          }
+        }
+      ]
+    }
+  ]
+}

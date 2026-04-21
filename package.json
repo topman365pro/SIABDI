@@ -1,0 +1,23 @@
+{
+  "name": "sistem-absensi-fiksi",
+  "private": true,
+  "packageManager": "pnpm@10.11.0",
+  "scripts": {
+    "dev": "pnpm --parallel --filter api --filter web dev",
+    "dev:api": "pnpm --filter api dev",
+    "dev:web": "pnpm --filter web dev",
+    "build": "pnpm --filter api build && pnpm --filter web build",
+    "build:web": "pnpm --filter web build",
+    "test": "pnpm --filter api test && pnpm --filter web test",
+    "test:web": "pnpm --filter web test",
+    "test:integration": "pnpm --filter api test:integration",
+    "prisma:migrate": "pnpm --filter api prisma:migrate",
+    "prisma:generate": "pnpm --filter api prisma:generate",
+    "prisma:seed": "pnpm --filter api prisma:seed",
+    "postman:export": "node ./scripts/postman-export.mjs",
+    "docker:dev": "docker compose up",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f api web",
+    "docker:reset": "docker compose down -v"
+  }
+}

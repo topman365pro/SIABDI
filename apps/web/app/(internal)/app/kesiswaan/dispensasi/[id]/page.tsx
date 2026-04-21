@@ -1,0 +1,11 @@
+import { DispensationDetail } from "@/components/kesiswaan/dispensation-detail";
+
+export default async function KesiswaanDispensationDetailPage({
+  params
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+
+  return <DispensationDetail dispensationId={id} />;
+}

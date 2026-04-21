@@ -1,0 +1,109 @@
+services:
+  deps:
+    image: node:25-alpine
+    container_name: attendance-deps
+    working_dir: /app
+    command: sh -c "npm install -g pnpm@10.11.0 && pnpm config set store-dir /pnpm/store && pnpm install --frozen-lockfile=false"
+    volumes:
+      - .:/app
+      - pnpm_store:/pnpm/store
+      - root_node_modules:/app/node_modules
+      - api_node_modules:/app/apps/api/node_modules
+      - web_node_modules:/app/apps/web/node_modules
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: attendance-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: attendance_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d attendance_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: attendance-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+  api:
+    image: node:25-alpine
+    container_name: attendance-api
+    working_dir: /app
+    restart: unless-stopped
+    command: sh -c "npm install -g pnpm@10.11.0 && pnpm config set store-dir /pnpm/store && pnpm --filter api dev"
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/attendance_db?schema=public
+    ports:
+      - "3000:3000"
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
+      redis:
+        condition: service_started
+    volumes:
+      - .:/app
+      - pnpm_store:/pnpm/store
+      - root_node_modules:/app/node_modules
+      - api_node_modules:/app/apps/api/node_modules
+
+  db-init:
+    image: node:25-alpine
+    container_name: attendance-db-init
+    working_dir: /app
+    command: sh -c "npm install -g pnpm@10.11.0 && pnpm config set store-dir /pnpm/store && pnpm --filter api prisma:generate && pnpm --filter api prisma:migrate && pnpm --filter api prisma:seed"
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/attendance_db?schema=public
+    depends_on:
+      deps:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - pnpm_store:/pnpm/store
+      - root_node_modules:/app/node_modules
+      - api_node_modules:/app/apps/api/node_modules
+
+  web:
+    image: node:25-alpine
+    container_name: attendance-web
+    working_dir: /app
+    restart: unless-stopped
+    command: sh -c "npm install -g pnpm@10.11.0 && pnpm config set store-dir /pnpm/store && pnpm --filter web dev -- --hostname 0.0.0.0 --port 3001"
+    env_file:
+      - .env
+    environment:
+      NEXT_TELEMETRY_DISABLED: "1"
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:3000/api/v1
+    ports:
+      - "3001:3001"
+    depends_on:
+      api:
+        condition: service_started
+    volumes:
+      - .:/app
+      - pnpm_store:/pnpm/store
+      - root_node_modules:/app/node_modules
+      - web_node_modules:/app/apps/web/node_modules
+
+volumes:
+  postgres_data:
+  pnpm_store:
+  root_node_modules:
+  api_node_modules:
+  web_node_modules:
