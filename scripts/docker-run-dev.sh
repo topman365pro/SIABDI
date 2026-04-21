@@ -148,7 +148,7 @@ start_web() {
     -v "${ROOT_NODE_MODULES_VOLUME}:/app/node_modules" \
     -v "${WEB_NODE_MODULES_VOLUME}:/app/apps/web/node_modules" \
     "${NODE_IMAGE}" \
-    sh -c "npm install -g pnpm@10.11.0 && pnpm config set store-dir /pnpm/store && pnpm --filter web dev -- --hostname 0.0.0.0 --port 3001" >/dev/null
+    sh -c "npm install -g pnpm@10.11.0 && pnpm config set store-dir /pnpm/store && pnpm --filter web exec next dev --hostname 0.0.0.0 --port 3001" >/dev/null
 }
 
 start_postgres
