@@ -1,15 +1,13 @@
 import { clearSessionCookies, getClientSession, persistSession } from "@/lib/auth/session";
 import type { AuthSession, CurrentUser } from "@/lib/types";
-
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3000/api/v1";
+import { DEFAULT_API_BASE_URL, getClientApiBaseUrl } from "./endpoint";
 
 interface RequestOptions extends RequestInit {
   auth?: boolean;
 }
 
 async function refreshSession(refreshToken: string) {
-  const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+  const response = await fetch(`${getClientApiBaseUrl()}/auth/refresh`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${refreshToken}`
@@ -29,6 +27,7 @@ async function refreshSession(refreshToken: string) {
 export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const session = getClientSession();
   const headers = new Headers(options.headers);
+  const apiBaseUrl = getClientApiBaseUrl();
 
   if (!headers.has("Content-Type") && options.body) {
     headers.set("Content-Type", "application/json");
@@ -38,7 +37,7 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
     headers.set("Authorization", `Bearer ${session.accessToken}`);
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await fetch(`${apiBaseUrl}${path}`, {
     ...options,
     headers
   });
@@ -92,7 +91,7 @@ export async function serverApiRequest<T>(
 
   headers.set("Authorization", `Bearer ${accessToken}`);
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await fetch(`${DEFAULT_API_BASE_URL}${path}`, {
     ...options,
     headers,
     cache: "no-store"

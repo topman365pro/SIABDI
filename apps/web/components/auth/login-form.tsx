@@ -3,15 +3,27 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { loginRequest } from "@/lib/api/client";
+import {
+  DEFAULT_API_BASE_URL,
+  getClientApiBaseUrl,
+  isValidApiBaseUrl,
+  persistClientApiBaseUrl,
+  resetClientApiBaseUrl
+} from "@/lib/api/endpoint";
 import { getPrimaryRole, getRoleHomePath } from "@/lib/auth/roles";
 import { persistSession } from "@/lib/auth/session";
 
 const schema = z.object({
   username: z.string().min(3, "Username wajib diisi."),
-  password: z.string().min(6, "Password minimal 6 karakter.")
+  password: z.string().min(6, "Password minimal 6 karakter."),
+  apiBaseUrl: z
+    .string()
+    .min(1, "API endpoint wajib diisi.")
+    .refine(isValidApiBaseUrl, "Masukkan URL API yang valid, contoh: http://IP-VPS:3000/api/v1")
 });
 
 type LoginFormValues = z.infer<typeof schema>;
@@ -24,14 +36,30 @@ export function LoginForm() {
     resolver: zodResolver(schema),
     defaultValues: {
       username: "",
-      password: ""
+      password: "",
+      apiBaseUrl: DEFAULT_API_BASE_URL
     }
   });
+
+  useEffect(() => {
+    form.setValue("apiBaseUrl", getClientApiBaseUrl(), { shouldValidate: true });
+  }, [form]);
+
+  function useSavedEndpoint() {
+    const current = getClientApiBaseUrl();
+    form.setValue("apiBaseUrl", current, { shouldValidate: true });
+  }
+
+  function useDefaultEndpoint() {
+    resetClientApiBaseUrl();
+    form.setValue("apiBaseUrl", DEFAULT_API_BASE_URL, { shouldValidate: true });
+  }
 
   async function onSubmit(values: LoginFormValues) {
     form.clearErrors("root");
 
     try {
+      persistClientApiBaseUrl(values.apiBaseUrl);
       const session = await loginRequest(values.username, values.password);
       persistSession(session);
       const primaryRole = getPrimaryRole(session.user.roleCodes);
@@ -58,6 +86,45 @@ export function LoginForm() {
       <p className="mt-3 text-sm text-slate-600">
         Satu login untuk guru, BK, kesiswaan, admin, dan orang tua.
       </p>
+
+      <div className="mt-6 rounded-[22px] border border-line bg-white/60 p-4">
+        <label className="block space-y-2">
+          <span className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+            API Endpoint
+          </span>
+          <input
+            {...form.register("apiBaseUrl")}
+            className="w-full rounded-[16px] border border-line bg-canvas px-4 py-3 text-sm outline-none"
+            placeholder="http://IP-VPS:3000/api/v1"
+          />
+          {form.formState.errors.apiBaseUrl ? (
+            <p className="text-sm text-[var(--color-danger)]">
+              {form.formState.errors.apiBaseUrl.message}
+            </p>
+          ) : (
+            <p className="text-xs leading-relaxed text-slate-500">
+              Untuk VPS, isi dengan alamat API yang bisa diakses browser, misalnya
+              {" "}http://domain-anda:3000/api/v1.
+            </p>
+          )}
+        </label>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={useSavedEndpoint}
+            className="rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-slate-600"
+          >
+            Pakai tersimpan
+          </button>
+          <button
+            type="button"
+            onClick={useDefaultEndpoint}
+            className="rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-slate-600"
+          >
+            Reset default
+          </button>
+        </div>
+      </div>
 
       <div className="mt-8 space-y-4">
         <label className="block space-y-2">
