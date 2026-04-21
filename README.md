@@ -2,6 +2,8 @@
 
 ## Local Deployment
 
+Untuk deployment development di Google Cloud Compute Engine, lihat [docs/google-cloud-dev-deployment.md](docs/google-cloud-dev-deployment.md).
+
 ### Full Docker Stack
 
 1. Salin environment contoh.
