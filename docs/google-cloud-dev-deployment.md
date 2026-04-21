@@ -129,12 +129,14 @@ Pastikan nilai ini tetap untuk mode SSH tunnel:
 
 ```env
 NEXT_PUBLIC_API_BASE_URL=http://localhost:3000/api/v1
+CORS_ORIGIN=http://localhost:3001
 ```
 
 Jika nanti Anda memakai public IP/domain langsung, ubah ke alamat yang dilihat browser, misalnya:
 
 ```env
 NEXT_PUBLIC_API_BASE_URL=http://YOUR_VM_EXTERNAL_IP:3000/api/v1
+CORS_ORIGIN=http://YOUR_VM_EXTERNAL_IP:3001
 ```
 
 ## 7. Jalankan Stack
@@ -229,10 +231,11 @@ newgrp docker
 Jika frontend tidak bisa memanggil API:
 - Pastikan SSH tunnel membuka port `3000` dan `3001`.
 - Pastikan `.env` memakai `NEXT_PUBLIC_API_BASE_URL=http://localhost:3000/api/v1` untuk tunnel.
+- Jika tidak memakai tunnel dan membuka frontend dari public IP/domain, pastikan `NEXT_PUBLIC_API_BASE_URL` dan `CORS_ORIGIN` memakai public IP/domain yang sama dengan browser.
 - Restart web setelah mengubah `.env`:
 
 ```bash
-docker restart attendance-web
+bash scripts/docker-run-dev.sh
 ```
 
 Jika API gagal konek database:
